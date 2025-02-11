@@ -35,7 +35,7 @@ public class AddEventModal extends JDialog {
         // Event Type Dropdown (Meeting or Deadline)
         add(new JLabel("Event Type:"));
         eventTypeDropdown = new JComboBox<>(new String[]{"Meeting", "Deadline"});
-        eventTypeDropdown.addActionListener(e -> toggleFields());
+        eventTypeDropdown.addActionListener(_ -> toggleFields()); // Fixed unused parameter warning
         add(eventTypeDropdown);
 
         // DateTime field
@@ -55,12 +55,15 @@ public class AddEventModal extends JDialog {
 
         // Submit Button
         JButton addButton = new JButton("Add Event");
-        addButton.addActionListener(e -> addEvent());
+        addButton.addActionListener(_ -> addEvent()); // Fixed unused parameter warning
         add(addButton);
 
         toggleFields();
     }
 
+    /**
+     * Enables or disables input fields based on the selected event type.
+     */
     private void toggleFields() {
         boolean isMeeting = "Meeting".equals(eventTypeDropdown.getSelectedItem());
 
@@ -70,6 +73,9 @@ public class AddEventModal extends JDialog {
         durationField.setVisible(isMeeting);
     }
 
+    /**
+     * Validates input and adds the event to the list.
+     */
     private void addEvent() {
         try {
             String name = nameField.getText().trim();

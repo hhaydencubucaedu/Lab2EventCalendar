@@ -10,10 +10,8 @@ import java.awt.*;
  * Panel that displays an individual event with a checkbox for completion.
  */
 public class EventPanel extends JPanel {
-    private final Event event;
 
     public EventPanel(Event event) {
-        this.event = event;
         setLayout(new BorderLayout());
 
         JLabel nameLabel = new JLabel(event.getName());

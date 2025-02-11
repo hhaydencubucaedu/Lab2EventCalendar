@@ -28,10 +28,9 @@ public class EventListPanel extends JPanel {
         // Sorting Dropdown
         String[] sortOptions = {"Sort by Name", "Sort by Name (Reverse)", "Sort by Date & Time", "Sort by Date & Time (Reverse)"};
         sortDropDown = new JComboBox<>(sortOptions);
-        sortDropDown.addActionListener(e -> sortEvents()); // ✅ Restored the sortEvents() method call
+        sortDropDown.addActionListener(_ -> sortEvents());
         add(sortDropDown, BorderLayout.NORTH);
 
-        // Panel for displaying events
         displayPanel = new JPanel();
         displayPanel.setLayout(new BoxLayout(displayPanel, BoxLayout.Y_AXIS));
         add(new JScrollPane(displayPanel), BorderLayout.CENTER);
@@ -51,12 +50,25 @@ public class EventListPanel extends JPanel {
         filterPanel.add(filterDeadlines);
         add(filterPanel, BorderLayout.WEST);
 
-        // Add Event Button
+        // ✅ Fix: Add Event Button at the bottom
         JButton addEventButton = new JButton("Add Event");
-        addEventButton.addActionListener(e -> new AddEventModal(this).setVisible(true));
+        addEventButton.addActionListener(_ -> new AddEventModal(this).setVisible(true));
         add(addEventButton, BorderLayout.SOUTH);
     }
 
+    /**
+     * ✅ Fix: Adds default events if none exist.
+     */
+    public static void addDefaultEvents(EventListPanel eventListPanel) {
+        if (eventListPanel.events.isEmpty()) { // Only add if the list is empty
+            eventListPanel.addEvent(new Deadline("Submit Report", LocalDateTime.now().plusDays(1)));
+            eventListPanel.addEvent(new Meeting("Team Meeting", LocalDateTime.now(), LocalDateTime.now().plusHours(1), "Room 101"));
+        }
+    }
+
+    /**
+     * Adds an event to the list and updates the display.
+     */
     public void addEvent(Event event) {
         events.add(event);
         refreshEventDisplay();
@@ -71,21 +83,9 @@ public class EventListPanel extends JPanel {
         List<Event> filteredEvents = new ArrayList<>();
 
         for (Event event : events) {
-            boolean addEvent = true;
-
-            if (filterCompleted.isSelected() && event instanceof Completable && ((Completable) event).isComplete()) {
-                addEvent = false;
-            }
-            if (filterMeetings.isSelected() && !(event instanceof Meeting)) {
-                addEvent = false;
-            }
-            if (filterDeadlines.isSelected() && !(event instanceof Deadline)) {
-                addEvent = false;
-            }
-
-            if (!filterCompleted.isSelected() && !filterMeetings.isSelected() && !filterDeadlines.isSelected()) {
-                addEvent = true;
-            }
+            boolean addEvent = !filterCompleted.isSelected() || !(event instanceof Completable) || !((Completable) event).isComplete();
+            addEvent &= !filterMeetings.isSelected() || event instanceof Meeting;
+            addEvent &= !filterDeadlines.isSelected() || event instanceof Deadline;
 
             if (addEvent) {
                 filteredEvents.add(event);
@@ -101,7 +101,7 @@ public class EventListPanel extends JPanel {
     }
 
     /**
-     * ✅ Restored: Sorts events based on user selection.
+     * Sorts events based on user selection.
      */
     private void sortEvents() {
         String selected = (String) sortDropDown.getSelectedItem();
@@ -115,15 +115,5 @@ public class EventListPanel extends JPanel {
             events.sort(Comparator.comparing(Event::getDateTime).reversed());
         }
         refreshEventDisplay();
-    }
-
-    /**
-     * Ensures default events are only added if the event list is empty.
-     */
-    public static void addDefaultEvents(EventListPanel eventListPanel) {
-        if (eventListPanel.events.isEmpty()) { // Only add if the list is empty
-            eventListPanel.addEvent(new Deadline("Submit Report", LocalDateTime.now().plusDays(1)));
-            eventListPanel.addEvent(new Meeting("Team Meeting", LocalDateTime.now(), LocalDateTime.now().plusHours(1), "Room 101"));
-        }
     }
 }
