@@ -14,12 +14,12 @@ import java.time.format.DateTimeParseException;
  * Dialog window to allow users to add a new event (Meeting or Deadline).
  */
 public class AddEventModal extends JDialog {
-    private JTextField nameField;
-    private JComboBox<String> eventTypeDropdown;
-    private JTextField dateTimeField;
-    private JTextField locationField;
-    private JTextField durationField;
-    private EventListPanel eventListPanel;
+    private final JTextField nameField;
+    private final JComboBox<String> eventTypeDropdown;
+    private final JTextField dateTimeField;
+    private final JTextField locationField;
+    private final JTextField durationField;
+    private final EventListPanel eventListPanel;
 
     public AddEventModal(EventListPanel eventListPanel) {
         this.eventListPanel = eventListPanel;
@@ -35,7 +35,7 @@ public class AddEventModal extends JDialog {
         // Event Type Dropdown (Meeting or Deadline)
         add(new JLabel("Event Type:"));
         eventTypeDropdown = new JComboBox<>(new String[]{"Meeting", "Deadline"});
-        eventTypeDropdown.addActionListener(e -> toggleFields()); // Ensure fields enable correctly
+        eventTypeDropdown.addActionListener(e -> toggleFields());
         add(eventTypeDropdown);
 
         // DateTime field
@@ -48,7 +48,7 @@ public class AddEventModal extends JDialog {
         locationField = new JTextField();
         add(locationField);
 
-        // Duration (Only for Meetings) - Changed from "End Time"
+        // Duration (Only for Meetings)
         add(new JLabel("Duration (Minutes) (Meetings Only):"));
         durationField = new JTextField();
         add(durationField);
@@ -58,30 +58,18 @@ public class AddEventModal extends JDialog {
         addButton.addActionListener(e -> addEvent());
         add(addButton);
 
-        // Ensure the correct fields are enabled at startup
         toggleFields();
     }
 
-    /**
-     * Toggles input fields based on event type selection.
-     */
     private void toggleFields() {
-        boolean isMeeting = eventTypeDropdown.getSelectedItem().equals("Meeting");
+        boolean isMeeting = "Meeting".equals(eventTypeDropdown.getSelectedItem());
 
-        // Enable/Disable fields based on event type
         locationField.setEnabled(isMeeting);
         durationField.setEnabled(isMeeting);
-
-        // Clear fields when switching event types to avoid incorrect input
-        if (!isMeeting) {
-            locationField.setText("");
-            durationField.setText("");
-        }
+        locationField.setVisible(isMeeting);
+        durationField.setVisible(isMeeting);
     }
 
-    /**
-     * Validates input and adds the event to the list.
-     */
     private void addEvent() {
         try {
             String name = nameField.getText().trim();
@@ -91,7 +79,6 @@ public class AddEventModal extends JDialog {
             }
 
             LocalDateTime dateTime = LocalDateTime.parse(dateTimeField.getText().replace(" ", "T"));
-
             String eventType = (String) eventTypeDropdown.getSelectedItem();
 
             if ("Meeting".equals(eventType)) {
@@ -115,7 +102,7 @@ public class AddEventModal extends JDialog {
                 eventListPanel.addEvent(new Deadline(name, dateTime));
             }
 
-            dispose(); // Close modal after adding event
+            dispose();
         } catch (DateTimeParseException e) {
             JOptionPane.showMessageDialog(this, "Invalid date format! Please use YYYY-MM-DD HH:MM", "Error", JOptionPane.ERROR_MESSAGE);
         } catch (NumberFormatException e) {

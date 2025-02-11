@@ -16,19 +16,19 @@ import java.util.List;
  * Panel that holds and displays a list of events, with sorting and filtering options.
  */
 public class EventListPanel extends JPanel {
-    private ArrayList<Event> events;
-    private JPanel displayPanel;
-    private JComboBox<String> sortDropDown;
-    private JCheckBox filterCompleted, filterMeetings, filterDeadlines;
+    private final ArrayList<Event> events;
+    private final JPanel displayPanel;
+    private final JComboBox<String> sortDropDown;
+    private final JCheckBox filterCompleted, filterMeetings, filterDeadlines;
 
     public EventListPanel() {
         this.events = new ArrayList<>();
         setLayout(new BorderLayout());
 
-        // Sorting Dropdown (Updated wording)
+        // Sorting Dropdown
         String[] sortOptions = {"Sort by Name", "Sort by Name (Reverse)", "Sort by Date & Time", "Sort by Date & Time (Reverse)"};
         sortDropDown = new JComboBox<>(sortOptions);
-        sortDropDown.addActionListener(e -> sortEvents());
+        sortDropDown.addActionListener(e -> sortEvents()); // ✅ Restored the sortEvents() method call
         add(sortDropDown, BorderLayout.NORTH);
 
         // Panel for displaying events
@@ -41,15 +41,14 @@ public class EventListPanel extends JPanel {
         filterMeetings = new JCheckBox("Show Only Meetings");
         filterDeadlines = new JCheckBox("Show Only Deadlines");
 
-        filterCompleted.addActionListener(e -> refreshEventDisplay());
-        filterMeetings.addActionListener(e -> refreshEventDisplay());
-        filterDeadlines.addActionListener(e -> refreshEventDisplay());
+        filterCompleted.addActionListener(_ -> refreshEventDisplay());
+        filterMeetings.addActionListener(_ -> refreshEventDisplay());
+        filterDeadlines.addActionListener(_ -> refreshEventDisplay());
 
         JPanel filterPanel = new JPanel();
         filterPanel.add(filterCompleted);
         filterPanel.add(filterMeetings);
         filterPanel.add(filterDeadlines);
-
         add(filterPanel, BorderLayout.WEST);
 
         // Add Event Button
@@ -74,22 +73,16 @@ public class EventListPanel extends JPanel {
         for (Event event : events) {
             boolean addEvent = true;
 
-            // Hide completed events if the checkbox is checked
             if (filterCompleted.isSelected() && event instanceof Completable && ((Completable) event).isComplete()) {
                 addEvent = false;
             }
-
-            // Show only meetings if checkbox is checked
             if (filterMeetings.isSelected() && !(event instanceof Meeting)) {
                 addEvent = false;
             }
-
-            // Show only deadlines if checkbox is checked
             if (filterDeadlines.isSelected() && !(event instanceof Deadline)) {
                 addEvent = false;
             }
 
-            // ✅ FIX: If no filters are selected, show ALL events
             if (!filterCompleted.isSelected() && !filterMeetings.isSelected() && !filterDeadlines.isSelected()) {
                 addEvent = true;
             }
@@ -99,7 +92,6 @@ public class EventListPanel extends JPanel {
             }
         }
 
-        // Display filtered events
         for (Event event : filteredEvents) {
             displayPanel.add(new EventPanel(event));
         }
@@ -109,7 +101,7 @@ public class EventListPanel extends JPanel {
     }
 
     /**
-     * Sorts events based on user selection.
+     * ✅ Restored: Sorts events based on user selection.
      */
     private void sortEvents() {
         String selected = (String) sortDropDown.getSelectedItem();
@@ -117,9 +109,9 @@ public class EventListPanel extends JPanel {
             events.sort(Comparator.comparing(Event::getName));
         } else if ("Sort by Name (Reverse)".equals(selected)) {
             events.sort(Comparator.comparing(Event::getName).reversed());
-        } else if ("Sort by Date & Time".equals(selected)) { // Updated sorting wording
+        } else if ("Sort by Date & Time".equals(selected)) {
             events.sort(Comparator.comparing(Event::getDateTime));
-        } else if ("Sort by Date & Time (Reverse)".equals(selected)) { // Updated sorting wording
+        } else if ("Sort by Date & Time (Reverse)".equals(selected)) {
             events.sort(Comparator.comparing(Event::getDateTime).reversed());
         }
         refreshEventDisplay();

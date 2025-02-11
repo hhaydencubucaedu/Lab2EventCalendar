@@ -10,8 +10,7 @@ import java.awt.*;
  * Panel that displays an individual event with a checkbox for completion.
  */
 public class EventPanel extends JPanel {
-    private Event event;
-    private JCheckBox completeCheckBox; // Changed from JButton to JCheckBox
+    private final Event event;
 
     public EventPanel(Event event) {
         this.event = event;
@@ -20,14 +19,13 @@ public class EventPanel extends JPanel {
         JLabel nameLabel = new JLabel(event.getName());
         add(nameLabel, BorderLayout.CENTER);
 
-        // If the event is completable, add a checkbox to mark it as complete
         if (event instanceof Completable) {
-            completeCheckBox = new JCheckBox("Completed");
+            JCheckBox completeCheckBox = new JCheckBox("Completed");
             completeCheckBox.setSelected(((Completable) event).isComplete());
 
-            completeCheckBox.addActionListener(e -> {
+            completeCheckBox.addActionListener(_ -> {
                 ((Completable) event).complete();
-                completeCheckBox.setEnabled(false); // Disable checkbox after completion
+                completeCheckBox.setEnabled(false);
             });
 
             add(completeCheckBox, BorderLayout.EAST);
