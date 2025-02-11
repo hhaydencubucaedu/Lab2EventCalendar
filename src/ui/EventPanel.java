@@ -7,11 +7,11 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Panel that displays an individual event.
+ * Panel that displays an individual event with a checkbox for completion.
  */
 public class EventPanel extends JPanel {
     private Event event;
-    private JButton completeButton;
+    private JCheckBox completeCheckBox; // Changed from JButton to JCheckBox
 
     public EventPanel(Event event) {
         this.event = event;
@@ -20,14 +20,17 @@ public class EventPanel extends JPanel {
         JLabel nameLabel = new JLabel(event.getName());
         add(nameLabel, BorderLayout.CENTER);
 
-        // If the event is completable, add a button to mark it as complete.
+        // If the event is completable, add a checkbox to mark it as complete
         if (event instanceof Completable) {
-            completeButton = new JButton("Complete");
-            completeButton.addActionListener(e -> {
+            completeCheckBox = new JCheckBox("Completed");
+            completeCheckBox.setSelected(((Completable) event).isComplete());
+
+            completeCheckBox.addActionListener(e -> {
                 ((Completable) event).complete();
-                completeButton.setEnabled(false); // Disable button after completion.
+                completeCheckBox.setEnabled(false); // Disable checkbox after completion
             });
-            add(completeButton, BorderLayout.EAST);
+
+            add(completeCheckBox, BorderLayout.EAST);
         }
     }
 }

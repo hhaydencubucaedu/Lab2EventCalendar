@@ -25,8 +25,8 @@ public class EventListPanel extends JPanel {
         this.events = new ArrayList<>();
         setLayout(new BorderLayout());
 
-        // Sorting Dropdown
-        String[] sortOptions = {"Sort by Name", "Sort by Name (Reverse)", "Sort by Date", "Sort by Date (Reverse)"};
+        // Sorting Dropdown (Updated wording)
+        String[] sortOptions = {"Sort by Name", "Sort by Name (Reverse)", "Sort by Date & Time", "Sort by Date & Time (Reverse)"};
         sortDropDown = new JComboBox<>(sortOptions);
         sortDropDown.addActionListener(e -> sortEvents());
         add(sortDropDown, BorderLayout.NORTH);
@@ -89,6 +89,11 @@ public class EventListPanel extends JPanel {
                 addEvent = false;
             }
 
+            // ✅ FIX: If no filters are selected, show ALL events
+            if (!filterCompleted.isSelected() && !filterMeetings.isSelected() && !filterDeadlines.isSelected()) {
+                addEvent = true;
+            }
+
             if (addEvent) {
                 filteredEvents.add(event);
             }
@@ -112,16 +117,21 @@ public class EventListPanel extends JPanel {
             events.sort(Comparator.comparing(Event::getName));
         } else if ("Sort by Name (Reverse)".equals(selected)) {
             events.sort(Comparator.comparing(Event::getName).reversed());
-        } else if ("Sort by Date".equals(selected)) {
+        } else if ("Sort by Date & Time".equals(selected)) { // Updated sorting wording
             events.sort(Comparator.comparing(Event::getDateTime));
-        } else if ("Sort by Date (Reverse)".equals(selected)) {
+        } else if ("Sort by Date & Time (Reverse)".equals(selected)) { // Updated sorting wording
             events.sort(Comparator.comparing(Event::getDateTime).reversed());
         }
         refreshEventDisplay();
     }
 
+    /**
+     * Ensures default events are only added if the event list is empty.
+     */
     public static void addDefaultEvents(EventListPanel eventListPanel) {
-        eventListPanel.addEvent(new Deadline("Submit Report", LocalDateTime.now().plusDays(1)));
-        eventListPanel.addEvent(new Meeting("Team Meeting", LocalDateTime.now(), LocalDateTime.now().plusHours(1), "Room 101"));
+        if (eventListPanel.events.isEmpty()) { // Only add if the list is empty
+            eventListPanel.addEvent(new Deadline("Submit Report", LocalDateTime.now().plusDays(1)));
+            eventListPanel.addEvent(new Meeting("Team Meeting", LocalDateTime.now(), LocalDateTime.now().plusHours(1), "Room 101"));
+        }
     }
 }
